@@ -19,17 +19,17 @@ class MapLaser(object):
         self.listener = tf.TransformListener()
         self.map = None
         self.save = None
-        self.sub = rospy.Subscriber('/scan_filtered',
+        self.scan_sub = rospy.Subscriber('/scan_filtered',
                                     LaserScan,
                                     self.laser_cb,
                                     queue_size=1)
-        self.sub2 = rospy.Subscriber('/map', OccupancyGrid, self.map_cb)
+        self.map_sub = rospy.Subscriber('/map', OccupancyGrid, self.map_cb)
         self.global_frame = mobile_base + "_map"
 
         # Angular limits in radians
         self.min_angle = math.radians(-135)  # -135 degrees
         self.max_angle = math.radians(45)    # 45 degrees
-        self.max_distance = 4.0              # Limit the max distance to 4 meters
+        self.max_distance = rospy.get_param("~laser_scan_max_distance_range") # max distance range of laser scan. Set equal to obstacle_range ROS parameter in legtracker_lstm_nodes.launch
 
     def map_cb(self, msg):
         self.map = msg
@@ -81,7 +81,7 @@ class MapLaser(object):
                 nr.append(msg.range_max + 1.0)  # Out of angular bounds, ignore
                 continue
 
-            # Limit the range to a maximum of 4 meters
+            # Limit the range to a maximum of self.max_distance meters
             if d > self.max_distance:
                 nr.append(msg.range_max + 1.0)  # Out of distance bounds, ignore
                 continue
