@@ -13,16 +13,11 @@ class MapLaser(object):
     def __init__(self):
         rospy.init_node('map_laser_filter')
         mobile_base = rospy.get_param("~mobile_base")
-        self.pub = rospy.Publisher('/base_scan_filter',
-                                   LaserScan,
-                                   queue_size=10)
+        self.pub = rospy.Publisher('/base_scan_filter', LaserScan, queue_size=10)
         self.listener = tf.TransformListener()
         self.map = None
         self.save = None
-        self.scan_sub = rospy.Subscriber('/scan_filtered',
-                                    LaserScan,
-                                    self.laser_cb,
-                                    queue_size=1)
+        self.scan_sub = rospy.Subscriber('/scan', LaserScan, self.laser_cb, queue_size=1)
         self.map_sub = rospy.Subscriber('/map', OccupancyGrid, self.map_cb)
         self.global_frame = mobile_base + "_map"
 
